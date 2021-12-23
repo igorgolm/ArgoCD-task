@@ -1,2 +1,2 @@
 # igor-task
-Igor Golm techincal task
+Igor Golm technical task
