@@ -18,7 +18,7 @@ the setup by committing an arbitrary code change to the testapp (for example, yo
 
 6. Have fun! Don't be afraid to ask for help or clarifications, especially if something doesn't work as I planned.
 
-#Authenticating with GCP Artifact Repository
+## Authenticating with GCP Artifact Repository
 
 To use the provided registry and the image within it ``` europe-north1-docker.pkg.dev/lauri-container-fundamentals/fleuri/testapp ```,
 the user has to authenticate to it using the already created Service Account's (*artifact-repo-sa@lauri-container-fundamentals.iam.gserviceaccount.com*)
@@ -36,7 +36,7 @@ an error message like
 
 try clearing your docker config by running ``` rm $HOME/.docker/config.json ```. 
 
-#Notes about testapp
+## Notes about testapp
 
 Testapp is a simple webapp conjured up with flask. The environment is setup with [direnv](https://direnv.net/) and it has
 python3 and pip along with the dependencies installed. If you wish to set your own dev environment, you can install the
