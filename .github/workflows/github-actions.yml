@@ -6,9 +6,12 @@ on:
       - develop
 
 jobs:
-  prep-env:
+  build-and-push:
     runs-on: ubuntu-latest
-    name: Env prep
+    name: Build and Push testapp Docker image
+    env:
+      IMAGE_NAME: testapp
+      PROJECT_ID: lauri-container-fundamentals
     steps:
       - name: Checkout SCM
         uses: actions/checkout@v2 # https://github.com/actions/checkout
@@ -24,13 +27,6 @@ jobs:
       - name: Use gcloud CLI
         run: gcloud info
 
-  build-and-push:
-    runs-on: ubuntu-latest
-    name: Build and Push testapp Docker image
-    env:
-      IMAGE_NAME: testapp
-      PROJECT_ID: lauri-container-fundamentals
-    steps:
       - name: Build DEV testapp Docker image
         if: github.ref == 'refs/heads/develop'
         run: docker build -t $IMAGE_NAME:$GITHUB_JOB .
