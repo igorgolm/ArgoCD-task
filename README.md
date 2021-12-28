@@ -1,4 +1,4 @@
-# Technical task for Igor Golm
+# Technical task for Igor
 
 The goals for this task are the following:
 
