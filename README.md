@@ -1,8 +1,8 @@
-# Technical task for Igor Golm
+# Technical task for Igor
 
 The goals for this task are the following:
 
-1. Set up a Github actions workflow in the https://github.com/verifa/igor-task Github repository which builds a new 
+1. Set up a Github actions workflow in the https://github.com/verifa/ArgoCD-task Github repository which builds a new 
 Docker Image and pushes it to [GCP Artifact registry](https://cloud.google.com/artifact-registry/docs) *europe-north1-docker.pkg.dev/lauri-container-fundamentals/fleuri/testapp* .
 
 2. Fill in the kubernetes manifests for a deployment and service in the [kubernetes folder](kubernetes) for running the 
@@ -42,5 +42,5 @@ Testapp is a simple webapp conjured up with flask. The environment is setup with
 python3 and pip along with the dependencies installed. If you wish to set your own dev environment, you can install the
 dependencies with ```pip install -r requirements.txt```.
 
-To run the application locally, you can either run ```flask run``` with optional flags or build and run the docker container.
+To run the application locally, you can either run ```flask run``` with optional flags or build and run the docker container. To access the application in the browser, run ``` docker inspect <container name> | grep IPAddress ```. Navigate to http://\<ip address\>:5000/ .
 
