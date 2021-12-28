@@ -2,7 +2,7 @@
 
 The goals for this task are the following:
 
-1. Set up a Github actions workflow in the https://github.com/verifa/igor-task Github repository which builds a new 
+1. Set up a Github actions workflow in the https://github.com/verifa/ArgoCD-task Github repository which builds a new 
 Docker Image and pushes it to [GCP Artifact registry](https://cloud.google.com/artifact-registry/docs) *europe-north1-docker.pkg.dev/lauri-container-fundamentals/fleuri/testapp* .
 
 2. Fill in the kubernetes manifests for a deployment and service in the [kubernetes folder](kubernetes) for running the 
