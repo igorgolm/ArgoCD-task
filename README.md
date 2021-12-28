@@ -42,5 +42,5 @@ Testapp is a simple webapp conjured up with flask. The environment is setup with
 python3 and pip along with the dependencies installed. If you wish to set your own dev environment, you can install the
 dependencies with ```pip install -r requirements.txt```.
 
-To run the application locally, you can either run ```flask run``` with optional flags or build and run the docker container. To access the application in the browser, run ``` docker inspect <container name> | grep IPAddress ```. Navigate to http://<ip address>:5000/ .
+To run the application locally, you can either run ```flask run``` with optional flags or build and run the docker container. To access the application in the browser, run ``` docker inspect <container name> | grep IPAddress ```. Navigate to http://\<ip address\>:5000/ .
 
