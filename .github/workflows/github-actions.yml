@@ -114,5 +114,6 @@ jobs:
       - name: Push tag changes to repo
         if: startsWith(github.event.ref, 'refs/tags/v')
         run: |
+          export GIT_TAG=$(git describe --tags --abbrev=0)
           git commit -m "Updated prod manifests version $GIT_TAG"
           git push
