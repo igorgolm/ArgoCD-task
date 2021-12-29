@@ -1,0 +1,36 @@
+# Install nginx ingress controller (for ArgoCD web UI)
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml
+
+# Install certmanamer (for selfsigned tls certs usage)
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.0.2/cert-manager.yaml
+
+# Create ClusterIssuer (conf in results folder):
+kubectl apply -f cert-issuer.yaml
+
+
+# Create namespace for ArgoCD
+kubectl create ns argo-cd
+
+# Download ArgoCD install manifest
+wget https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# find there ClusterRoleBinding and update namespace: argocd -> argo-cd
+kubectl apply -f install.yaml -n argo-cd
+
+# Create argocd ingress (conf in results folder):
+kubectl apply -f argocd-ingress.yaml
+
+# Get ArgoCD admin credentials
+kubectl -n argo-cd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+# Download GCP key and create Docker registry secrets in testapp namespaces
+kubectl create secret docker-registry gcr-json-key \
+  --docker-server=europe-north1-docker.pkg.dev \
+  --docker-username=_json_key \
+  --docker-password="$(cat /home/igor/Downloads/artifact-repo-sa-key.json)" \
+  --docker-email=artifact-repo-sa@lauri-container-fundamentals.iam.gserviceaccount.com -n dev-testapp
+
+kubectl create secret docker-registry gcr-json-key \
+  --docker-server=europe-north1-docker.pkg.dev \
+  --docker-username=_json_key \
+  --docker-password="$(cat /home/igor/Downloads/artifact-repo-sa-key.json)" \
+  --docker-email=artifact-repo-sa@lauri-container-fundamentals.iam.gserviceaccount.com -n prod-testapp
