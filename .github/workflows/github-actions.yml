@@ -60,6 +60,7 @@ jobs:
 
   update-k8s-manifests:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
     needs: [build-and-push] # Identifies any jobs that must complete successfully before this job will run
     steps:
       - name: Checkout SCM
@@ -67,13 +68,11 @@ jobs:
 
       # For develop branch
       - name: Update DEV testapp Docker image version in k8s deployment manifest
-        if: github.ref == 'refs/heads/develop'
         run: |
           export OLD_IMAGE=$(cat $K8S_DEV_DEPLOYMENT_MANIFEST_PATH | grep -o "$IMAGE_NAME:[0-9]*" | grep -o "[0-9]*")
           sed -i "s/$OLD_IMAGE/$GITHUB_RUN_ID/g" $K8S_DEV_DEPLOYMENT_MANIFEST_PATH
 
       - name: Commit changes in manifests
-        if: github.ref == 'refs/heads/develop'
         run: |
           git config --global user.name 'Github Actions CI'
           git config --global user.email 'github.actions@users.noreply.github.com'
