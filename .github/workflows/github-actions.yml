@@ -1,17 +1,24 @@
 name: Build and Push App image to GCP AR
+
 on: 
   push:
     branches:
       - main
       - develop
 
+env:
+  IMAGE_NAME: testapp
+  PROJECT_ID: lauri-container-fundamentals
+  DEV_IMAGE_VERSION: $GITHUB_RUN_ID
+  LATEST_IMAGE_VERSION: latest
+  DOCKER_REGISTRY: europe-north1-docker.pkg.dev
+  K8S_DEV_DEPLOYMENT_MANIFEST_PATH: kubernetes/dev/testapp-deployment.yaml
+  K8S_PROD_DEPLOYMENT_MANIFEST_PATH: kubernetes/prod/testapp-deployment.yaml
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     name: Build and Push testapp Docker image
-    env:
-      IMAGE_NAME: testapp
-      PROJECT_ID: lauri-container-fundamentals
     steps:
       - name: Checkout SCM
         uses: actions/checkout@v2 # https://github.com/actions/checkout
@@ -29,28 +36,57 @@ jobs:
 
       - name: Configure Docker client
         run: |-
-          gcloud auth configure-docker europe-north1-docker.pkg.dev
+          gcloud auth configure-docker $DOCKER_REGISTRY
 
       # For develop branch
       - name: Build DEV testapp Docker image
         if: github.ref == 'refs/heads/develop'
-        run: docker build -t $IMAGE_NAME:$GITHUB_RUN_ID .
+        run: docker build -t $IMAGE_NAME:$DEV_IMAGE_VERSION .
+
+      - name: Push DEV Docker image to GCP AR
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          docker tag $IMAGE_NAME:$DEV_IMAGE_VERSION $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:$DEV_IMAGE_VERSION
+          docker push $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:$DEV_IMAGE_VERSION
 
       ## For main branch
       - name: Build latest testapp Docker image
         if: github.ref == 'refs/heads/main'
-        run: docker build -t $IMAGE_NAME:latest .
+        run: docker build -t $IMAGE_NAME:$LATEST_IMAGE_VERSION .
 
-      # For develop branch
-      - name: Push DEV Docker image to GCP AR
-        if: github.ref == 'refs/heads/develop'
-        run: |-
-          docker tag $IMAGE_NAME:$GITHUB_RUN_ID europe-north1-docker.pkg.dev/$PROJECT_ID/fleuri/$IMAGE_NAME:$GITHUB_RUN_ID
-          docker push europe-north1-docker.pkg.dev/$PROJECT_ID/fleuri/$IMAGE_NAME:$GITHUB_RUN_ID
-
-      ## For main branch
       - name: Push latest Docker image to GCP AR
         if: github.ref == 'refs/heads/main'
-        run: |-
-          docker tag $IMAGE_NAME:latest europe-north1-docker.pkg.dev/$PROJECT_ID/fleuri/$IMAGE_NAME:latest
-          docker push europe-north1-docker.pkg.dev/$PROJECT_ID/fleuri/$IMAGE_NAME:latest
+        run: |
+          docker tag $IMAGE_NAME:$LATEST_IMAGE_VERSION $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:$LATEST_IMAGE_VERSION
+          docker push $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:$LATEST_IMAGE_VERSION
+
+jobs:
+  update-k8s-manifests:
+    runs-on: ubuntu-latest
+    needs: [build-and-push] # Identifies any jobs that must complete successfully before this job will run
+    steps:
+      # For develop branch
+      - name: Update DEV testapp Docker image version in k8s deployment manifest
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          sed -i 's/DOCKER_REGISTRY/$DOCKER_REGISTRY/gK8S_DEPLOYMENT_MANIFEST_PATH' $K8S_DEV_DEPLOYMENT_MANIFEST_PATH
+          sed -i 's/PROJECT_ID/$PROJECT_ID/g' $K8S_DEV_DEPLOYMENT_MANIFEST_PATH
+          sed -i 's/IMAGE_NAME/$IMAGE_NAME/g' $K8S_DEV_DEPLOYMENT_MANIFEST_PATH
+          sed -i 's/IMAGE_VERSION/$DEV_IMAGE_VERSION/g' $K8S_DEV_DEPLOYMENT_MANIFEST_PATH
+
+      ## For main branch
+      - name: Update latest testapp Docker image version in k8s deployment manifest
+        if: github.ref == 'refs/heads/main'
+        run: |
+          sed -i 's/DOCKER_REGISTRY/$DOCKER_REGISTRY/g' $K8S_PROD_DEPLOYMENT_MANIFEST_PATH
+          sed -i 's/PROJECT_ID/$PROJECT_ID/g' $K8S_PROD_DEPLOYMENT_MANIFEST_PATH
+          sed -i 's/IMAGE_NAME/$IMAGE_NAME/g' $K8S_PROD_DEPLOYMENT_MANIFEST_PATH
+          sed -i 's/IMAGE_VERSION/latest/g' $K8S_PROD_DEPLOYMENT_MANIFEST_PATH
+
+      - name: Commit changes in manifests
+        run: |
+          git config --global user.name 'Github Actions CI'
+          git config --global user.email 'github.actions@users.noreply.github.com'
+          git add kubernetes
+          git commit -m "Updated"
+          git push
