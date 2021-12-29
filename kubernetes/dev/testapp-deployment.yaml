@@ -18,7 +18,7 @@ spec:
         - name: gcr-json-key
       containers:
         - name: testapp-web
-          image: europe-north1-docker.pkg.dev/lauri-container-fundamentals/fleuri/testapp:1635219093
+          image: europe-north1-docker.pkg.dev/lauri-container-fundamentals/fleuri/testapp:1635244765
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
