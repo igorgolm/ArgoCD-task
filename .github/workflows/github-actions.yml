@@ -3,7 +3,6 @@ name: Build and Push App image to GCP AR
 on: 
   push:
     branches:
-      - main
       - develop
     tags:
       - '*'
@@ -49,17 +48,6 @@ jobs:
           docker tag $IMAGE_NAME:$GITHUB_RUN_ID $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:$GITHUB_RUN_ID
           docker push $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:$GITHUB_RUN_ID
 
-      ## For main branch
-      - name: Build latest testapp Docker image
-        if: github.ref == 'refs/heads/main'
-        run: docker build -t $IMAGE_NAME:latest .
-
-      - name: Push latest Docker image to GCP AR
-        if: github.ref == 'refs/heads/main'
-        run: |
-          docker tag $IMAGE_NAME:latest $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:latest
-          docker push $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:latest
-
       ### For tags
       - name: Build tagged testapp Docker image
         if: startsWith(github.event.ref, 'refs/tags/v')
@@ -93,6 +81,7 @@ jobs:
       - name: Update tagged testapp Docker image version in k8s deployment manifest
         if: startsWith(github.event.ref, 'refs/tags/v')
         run: |
+          git checkout main
           export GIT_TAG=$(git describe --tags --abbrev=0)
           export OLD_IMAGE=$(cat $K8S_PROD_DEPLOYMENT_MANIFEST_PATH | grep -o "$IMAGE_NAME:v[0-9].*" | grep -o "v[0-9].*")
           sed -i "s/$OLD_IMAGE/$GIT_TAG/g" $K8S_PROD_DEPLOYMENT_MANIFEST_PATH
@@ -115,6 +104,5 @@ jobs:
         if: startsWith(github.event.ref, 'refs/tags/v')
         run: |
           export GIT_TAG=$(git describe --tags --abbrev=0)
-          git checkout main
           git commit -m "Updated prod manifests version $GIT_TAG"
-          git push origin main
+          git push
