@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - develop
+    tags:
+      - '*'
 
 env:
   IMAGE_NAME: testapp
@@ -58,6 +60,21 @@ jobs:
           docker tag $IMAGE_NAME:latest $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:latest
           docker push $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:latest
 
+      ### For tags
+      - name: Build tagged testapp Docker image
+        if: startsWith(github.event.ref, 'refs/tags/v')
+        run: |
+          export GIT_TAG=$(git describe --tags --abbrev=0)
+          docker build -t $IMAGE_NAME:$GIT_TAG .
+
+      - name: Push tagged Docker image to GCP AR
+        if: startsWith(github.event.ref, 'refs/tags/v')
+        run: |
+          export GIT_TAG=$(git describe --tags --abbrev=0)
+          docker tag $IMAGE_NAME:$GIT_TAG $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:$GIT_TAG
+          docker push $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:$GIT_TAG
+
+
   update-k8s-manifests:
     runs-on: ubuntu-latest
     needs: [build-and-push] # Identifies any jobs that must complete successfully before this job will run
@@ -72,11 +89,30 @@ jobs:
           export OLD_IMAGE=$(cat $K8S_DEV_DEPLOYMENT_MANIFEST_PATH | grep -o "$IMAGE_NAME:[0-9]*" | grep -o "[0-9]*")
           sed -i "s/$OLD_IMAGE/$GITHUB_RUN_ID/g" $K8S_DEV_DEPLOYMENT_MANIFEST_PATH
 
+      ### For tags
+      - name: Update tagged testapp Docker image version in k8s deployment manifest
+        if: startsWith(github.event.ref, 'refs/tags/v')
+        run: |
+          export GIT_TAG=$(git describe --tags --abbrev=0)
+          export OLD_IMAGE=$(cat $K8S_PROD_DEPLOYMENT_MANIFEST_PATH | grep -o "$IMAGE_NAME:v[0-9].*" | grep -o "v[0-9].*")
+          sed -i "s/$OLD_IMAGE/$GIT_TAG/g" $K8S_PROD_DEPLOYMENT_MANIFEST_PATH
+
       - name: Commit changes in manifests
-        if: github.ref == 'refs/heads/develop'
         run: |
           git config --global user.name 'Github Actions CI'
           git config --global user.email 'github.actions@users.noreply.github.com'
           git add kubernetes
+      
+      # For develop branch
+      - name: Push DEV changes to repo
+        if: github.ref == 'refs/heads/develop'
+        run: |
           git commit -m "Updated dev manifests version $GITHUB_RUN_ID"
+          git push
+
+      ### For tags
+      - name: Push tag changes to repo
+        if: startsWith(github.event.ref, 'refs/tags/v')
+        run: |
+          git commit -m "Updated prod manifests version $GIT_TAG"
           git push
