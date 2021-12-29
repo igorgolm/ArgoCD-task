@@ -1,4 +1,4 @@
-apiVersion: apps/v0.0.8
+apiVersion: apps/v0.0.9
 kind: Deployment
 metadata:
   name: testapp
@@ -18,7 +18,7 @@ spec:
         - name: gcr-json-key
       containers:
         - name: testapp-web
-          image: europe-north1-docker.pkg.dev/lauri-container-fundamentals/fleuri/testapp:v0.0.8
+          image: europe-north1-docker.pkg.dev/lauri-container-fundamentals/fleuri/testapp:v0.0.9
           imagePullPolicy: Always
           ports:
             - name: http
