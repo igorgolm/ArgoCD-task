@@ -18,7 +18,7 @@ spec:
         - name: gcr-json-key
       containers:
         - name: testapp-web
-          image: $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:$GITHUB_RUN_ID
+          image: DOCKER_REGISTRY/PROJECT_ID/fleuri/IMAGE_NAME:IMAGE_VERSION
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
