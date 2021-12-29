@@ -69,10 +69,10 @@ jobs:
       - name: Update DEV testapp Docker image version in k8s deployment manifest
         if: github.ref == 'refs/heads/develop'
         run: |
-          sed -i 's/DOCKER_REGISTRY/$DOCKER_REGISTRY/g' $K8S_DEV_DEPLOYMENT_MANIFEST_PATH
-          sed -i 's/PROJECT_ID/$PROJECT_ID/g' $K8S_DEV_DEPLOYMENT_MANIFEST_PATH
-          sed -i 's/IMAGE_NAME/$IMAGE_NAME/g' $K8S_DEV_DEPLOYMENT_MANIFEST_PATH
-          sed -i 's/IMAGE_VERSION/$GITHUB_RUN_ID/g' $K8S_DEV_DEPLOYMENT_MANIFEST_PATH
+          sed -i "s/DOCKER_REGISTRY/$DOCKER_REGISTRY/g" $K8S_DEV_DEPLOYMENT_MANIFEST_PATH
+          sed -i "s/PROJECT_ID/$PROJECT_ID/g" $K8S_DEV_DEPLOYMENT_MANIFEST_PATH
+          sed -i "s/IMAGE_NAME/$IMAGE_NAME/g" $K8S_DEV_DEPLOYMENT_MANIFEST_PATH
+          sed -i "s/IMAGE_VERSION/$GITHUB_RUN_ID/g" $K8S_DEV_DEPLOYMENT_MANIFEST_PATH
 
       - name: Commit changes in manifests
         if: github.ref == 'refs/heads/develop'
@@ -87,9 +87,9 @@ jobs:
       - name: Update latest testapp Docker image version in k8s deployment manifest
         if: github.ref == 'refs/heads/main'
         run: |
-          sed -i 's/DOCKER_REGISTRY/$DOCKER_REGISTRY/g' $K8S_PROD_DEPLOYMENT_MANIFEST_PATH
-          sed -i 's/PROJECT_ID/$PROJECT_ID/g' $K8S_PROD_DEPLOYMENT_MANIFEST_PATH
-          sed -i 's/IMAGE_NAME/$IMAGE_NAME/g' $K8S_PROD_DEPLOYMENT_MANIFEST_PATH
+          sed -i "s/DOCKER_REGISTRY/$DOCKER_REGISTRY/g" $K8S_PROD_DEPLOYMENT_MANIFEST_PATH
+          sed -i "s/PROJECT_ID/$PROJECT_ID/g" $K8S_PROD_DEPLOYMENT_MANIFEST_PATH
+          sed -i "s/IMAGE_NAME/$IMAGE_NAME/g" $K8S_PROD_DEPLOYMENT_MANIFEST_PATH
 
       - name: Commit changes in manifests
         if: github.ref == 'refs/heads/main'
