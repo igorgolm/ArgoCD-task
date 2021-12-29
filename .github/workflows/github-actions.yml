@@ -81,6 +81,7 @@ jobs:
       - name: Update tagged testapp Docker image version in k8s deployment manifest
         if: startsWith(github.event.ref, 'refs/tags/v')
         run: |
+          git fetch
           git checkout main
           export GIT_TAG=$(git describe --tags --abbrev=0)
           export OLD_IMAGE=$(cat $K8S_PROD_DEPLOYMENT_MANIFEST_PATH | grep -o "$IMAGE_NAME:v[0-9].*" | grep -o "v[0-9].*")
