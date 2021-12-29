@@ -34,7 +34,7 @@ jobs:
       # For develop branch
       - name: Build DEV testapp Docker image
         if: github.ref == 'refs/heads/develop'
-        run: docker build -t $IMAGE_NAME:$GITHUB_JOB .
+        run: docker build -t $IMAGE_NAME:$GITHUB_RUN_ID .
 
       ## For main branch
       - name: Build latest testapp Docker image
@@ -45,8 +45,8 @@ jobs:
       - name: Push DEV Docker image to GCP AR
         if: github.ref == 'refs/heads/develop'
         run: |-
-          docker tag $IMAGE_NAME:$GITHUB_JOB europe-north1-docker.pkg.dev/$PROJECT_ID/fleuri/$IMAGE_NAME:$GITHUB_JOB
-          docker push europe-north1-docker.pkg.dev/$PROJECT_ID/fleuri/$IMAGE_NAME:$GITHUB_JOB
+          docker tag $IMAGE_NAME:$GITHUB_RUN_ID europe-north1-docker.pkg.dev/$PROJECT_ID/fleuri/$IMAGE_NAME:$GITHUB_RUN_ID
+          docker push europe-north1-docker.pkg.dev/$PROJECT_ID/fleuri/$IMAGE_NAME:$GITHUB_RUN_ID
 
       ## For main branch
       - name: Push latest Docker image to GCP AR
