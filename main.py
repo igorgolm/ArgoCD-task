@@ -10,7 +10,7 @@ app = Flask(__name__)
 def get_ip():
     return socket.gethostbyname(socket.gethostname())
 
-# comment 1
+# comment 2
 def get_time():
     return strftime("%a, %d %b %Y %H:%M:%S", gmtime())
 
