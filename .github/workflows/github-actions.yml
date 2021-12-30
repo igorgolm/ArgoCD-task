@@ -1,9 +1,11 @@
 name: Build and Push App image to GCP AR
 
-on: 
+on:
   push:
     branches:
       - develop
+    pull_request:
+      - main
     tags:
       - '*'
 
@@ -22,7 +24,7 @@ jobs:
       - name: Checkout SCM
         uses: actions/checkout@v2 # https://github.com/actions/checkout
 
-      - name: GCP auth 
+      - name: GCP auth
         uses: google-github-actions/auth@v0 # https://github.com/google-github-actions/setup-gcloud/blob/master/README.md
         with:
           credentials_json: '${{ secrets.SERVICE_ACCOUNT_KEY }}'
@@ -62,6 +64,17 @@ jobs:
           docker tag $IMAGE_NAME:$GIT_TAG $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:$GIT_TAG
           docker push $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:$GIT_TAG
 
+      ### For main
+      - name: Build latest testapp Docker image
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker build -t $IMAGE_NAME:latest .
+
+      - name: Push latest Docker image to GCP AR
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker tag $IMAGE_NAME:latest $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:latest
+          docker push $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:latest
 
   update-k8s-manifests:
     runs-on: ubuntu-latest
