@@ -1,3 +1,5 @@
+GCP also key added to repo secrets
+
 # Install nginx ingress controller (for ArgoCD web UI)
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml
 
