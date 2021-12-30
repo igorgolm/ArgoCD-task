@@ -67,12 +67,12 @@ jobs:
 
       ### For main
       - name: Build latest testapp Docker image
-        if: github.ref == 'refs/heads/main'
+        if: github.event_name == 'pull_request'
         run: |
           docker build -t $IMAGE_NAME:latest .
 
       - name: Push latest Docker image to GCP AR
-        if: github.ref == 'refs/heads/main'
+        if: github.event_name == 'pull_request'
         run: |
           docker tag $IMAGE_NAME:latest $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:latest
           docker push $DOCKER_REGISTRY/$PROJECT_ID/fleuri/$IMAGE_NAME:latest
